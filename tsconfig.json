@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "ESNext",
+    "target": "ES2015",
+    "moduleResolution": "node",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strictNullChecks": true,
+    "noErrorTruncation": true,
+    "jsx": "react",
+    "lib": ["ESNext", "ES2021", "ES2015", "DOM"]
+  },
+  "include": ["./node_modules/@sanity/base/types/**/*.ts", "src/**/*.ts", "src/**/*.tsx"]
+}

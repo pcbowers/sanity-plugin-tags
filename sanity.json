@@ -1,0 +1,24 @@
+{
+  "paths": {
+    "source": "./src",
+    "compiled": "./lib"
+  },
+  "parts": [
+    {
+      "name": "part:tags/Tags",
+      "description": "React input component for the tags schema type"
+    },
+    {
+      "implements": "part:tags/Tags",
+      "path": "components/Tags"
+    },
+    {
+      "implements": "part:@sanity/base/schema-type",
+      "path": "inputSchema"
+    },
+    {
+      "implements": "part:@sanity/base/schema-type",
+      "path": "tagSchema"
+    }
+  ]
+}
