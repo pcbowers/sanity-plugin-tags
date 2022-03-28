@@ -1,5 +1,5 @@
-import inputSchema from './inputSchema'
-export {default as TagsInputComponent} from './components/Tags'
-export {default as tag} from './tagSchema'
+import tags from './schemas/tags'
+export {default as Input} from './components/Input'
+export {default as tag} from './schemas/tag'
 
-export default inputSchema
+export default tags

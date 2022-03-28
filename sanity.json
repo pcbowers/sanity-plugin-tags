@@ -5,20 +5,30 @@
   },
   "parts": [
     {
-      "name": "part:tags/Tags",
-      "description": "React input component for the tags schema type"
+      "name": "part:tags/components/input",
+      "description": "Input component for the tags plugin"
     },
     {
-      "implements": "part:tags/Tags",
-      "path": "components/Tags"
+      "name": "part:tags/components/select",
+      "description": "Provides a way to modify react-select's pluggable components for the tags plugin without modifying the rest of the provided input component"
     },
     {
+      "implements": "part:tags/components/select",
+      "path": "components/Select"
+    },
+    {
+      "implements": "part:tags/components/input",
+      "path": "components/Input"
+    },
+    {
+      "name": "part:tags/schemas/tags-default",
       "implements": "part:@sanity/base/schema-type",
-      "path": "inputSchema"
+      "path": "schemas/tags"
     },
     {
+      "name": "part:tags/schemas/tag-default",
       "implements": "part:@sanity/base/schema-type",
-      "path": "tagSchema"
+      "path": "schemas/tag"
     }
   ]
 }
