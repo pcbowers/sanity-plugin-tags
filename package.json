@@ -19,6 +19,9 @@
   ],
   "author": "P Christopher Bowers <pcbowers@gmail.com>",
   "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "dependencies": {
     "@sanity/ui": "^0.37.5",
     "@reach/auto-id": "^0.16.0",
