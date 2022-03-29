@@ -27,7 +27,7 @@ jobs:
         with:
           registry-url: 'https://npm.pkg.github.com'
       - name: Publish to GPR Registry
-        run: npm init -y --scope ${{github.repository_owner}}
-        run: npm publish
+        run: npm init -y --scope ${{ github.repository_owner }}
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
