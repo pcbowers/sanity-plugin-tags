@@ -60,8 +60,8 @@ type PredefinedTagsInput =
 
 interface SchemaOptions {
   predefinedTags?: PredefinedTagsInput
-  includeFromReference?: boolean | string
-  includeFromRelated?: boolean | string
+  includeFromReference?: false | string
+  includeFromRelated?: false | string
   customLabel?: string
   customValue?: string
   allowCreate?: boolean
@@ -422,7 +422,7 @@ export default withDocument(
     const {
       predefinedTags = [],
       includeFromReference = false,
-      includeFromRelated = 'tags',
+      includeFromRelated = false,
       customLabel = 'label',
       customValue = 'value',
       allowCreate = true,
