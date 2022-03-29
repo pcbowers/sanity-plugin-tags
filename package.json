@@ -20,6 +20,7 @@
   "author": "P Christopher Bowers <pcbowers@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@sanity/ui": "^0.37.5",
     "@reach/auto-id": "^0.16.0",
     "prop-types": "^15.8.1",
     "react-select": "^5.2.2"
@@ -37,7 +38,6 @@
   "peerDependencies": {
     "@sanity/base": "^2.29.2",
     "@sanity/core": "^2.28.1",
-    "@sanity/ui": "^0.37.5",
     "@sanity/form-builder": "^2.29.2",
     "react": "^17.0.0",
     "react-dom": "^17.0"
