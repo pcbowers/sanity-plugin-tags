@@ -9,3 +9,4 @@
 .nyc_output
 .babelrc
 tsconfig.json
+docs

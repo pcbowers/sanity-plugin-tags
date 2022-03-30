@@ -1,14 +1,23 @@
 {
   "name": "sanity-plugin-tags",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "A multi-tag input for sanity studio",
   "main": "lib/index.js",
   "scripts": {
     "lint": "eslint .",
     "build": "sanipack build",
     "watch": "sanipack build --watch",
-    "prepublishOnly": "sanipack build && sanipack verify"
+    "verify": "sanipack build && sanipack verify",
+    "prepublishOnly": "npm run verify"
   },
+  "files": [
+    "/lib",
+    "/src",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "sanity.json"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/pcbowers/sanity-plugin-tags.git"
@@ -20,9 +29,9 @@
   "author": "P Christopher Bowers <pcbowers@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@sanity/ui": "^0.37.5",
     "@reach/auto-id": "^0.16.0",
-    "react-select": "^5.2.2"
+    "react-select": "^5.2.2",
+    "@sanity/ui": "^0.37.5"
   },
   "devDependencies": {
     "eslint": "^7.32.0",
@@ -30,16 +39,15 @@
     "eslint-config-sanity": "^5.1.0",
     "eslint-plugin-react": "^7.29.4",
     "prettier": "^2.6.1",
-    "react-dom": "^17.0",
     "sanipack": "^2.1.0",
     "typescript": "^4.6.3"
   },
   "peerDependencies": {
-    "@sanity/base": "^2.29.2",
-    "@sanity/core": "^2.28.1",
-    "@sanity/form-builder": "^2.29.2",
-    "react": "^17.0.0",
-    "react-dom": "^17.0"
+    "@sanity/base": "^2.0.9",
+    "@sanity/components": "^2.0.9",
+    "@sanity/form-builder": "^2.0.9",
+    "@sanity/core": "^2.0.9",
+    "react": "^16 || ^17"
   },
   "bugs": {
     "url": "https://github.com/pcbowers/sanity-plugin-tags/issues"
