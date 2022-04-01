@@ -1,5 +1,5 @@
 import {withDocument} from 'part:@sanity/form-builder'
-import sanityClient from 'part:@sanity/base/client'
+
 import * as SelectComponents from 'part:tags/components/select'
 import {FormField} from '@sanity/base/components'
 import PatchEvent, {set, unset} from '@sanity/form-builder/PatchEvent'
@@ -7,113 +7,26 @@ import React from 'react'
 import {useId} from '@reach/auto-id'
 import CreatableSelect from 'react-select/creatable'
 import Select from 'react-select'
-import {Card} from '@sanity/ui'
+import {from} from 'rxjs'
+import {map, switchMap, tap} from 'rxjs/operators'
 
+import {isSchemaMulti, isSchemaReference, client, listenOptions, filterUniqueTags} from '../utils'
+
+import {ReferenceCreateWarning, ReferencePredefinedWarning} from './ReferenceWarnings'
+
+import {ListenEvent} from '@sanity/client'
+
+import type {Observable} from 'rxjs'
 import type {
-  ArraySchemaType,
-  ReferenceSchemaType,
-  ObjectSchemaType,
-  Path,
-  Marker,
-  SanityDocument,
-} from '@sanity/types'
-import type {FormFieldPresence} from '@sanity/base/presence'
-import type {Observable, Subscription} from 'rxjs'
-
-/* CONSTANT VARIABLES */
-
-const client = sanityClient.withConfig({apiVersion: '2022-03-28'})
-
-const listenOptions = {
-  includeResult: false,
-  includePreviousRevision: false,
-  visibility: 'query',
-  events: ['welcome', 'mutation', 'reconnect'],
-}
-
-/* TYPES */
-
-type GeneralSubscription = Subscription | {unsubscribe: () => any}
-
-interface RefTag {
-  _ref: string
-  _type: string
-}
-
-interface GeneralTag {
-  [key: string]: any
-}
-
-interface Tag {
-  label: string
-  value: string
-  [key: string]: any
-}
-
-type PredefinedTagsInput =
-  | GeneralTag[]
-  | RefTag[]
-  | GeneralTag
-  | RefTag
-  | (() => Promise<GeneralTag[] | RefTag[] | GeneralTag | RefTag>)
-  | (() => GeneralTag[] | RefTag[] | GeneralTag | RefTag)
-
-interface SchemaOptions {
-  predefinedTags?: PredefinedTagsInput
-  includeFromReference?: false | string
-  includeFromRelated?: false | string
-  customLabel?: string
-  customValue?: string
-  allowCreate?: boolean
-  onCreate?: (inputValue: string) => GeneralTag
-  reactSelectOptions?: {
-    [key: string]: any
-  }
-}
-
-type InputType = (ArraySchemaType | ReferenceSchemaType | ObjectSchemaType) & {
-  options?: SchemaOptions
-}
-
-type InputProps = {
-  type: InputType
-  level: number
-  value?: GeneralTag | GeneralTag[] | RefTag | RefTag[]
-  document: SanityDocument
-  readOnly: boolean | null
-  onChange: (patchEvent: PatchEvent) => void
-  onFocus: (path?: Path | React.FocusEvent<any>) => void
-  onBlur?: () => void
-  markers: Marker[]
-  presence: FormFieldPresence[]
-}
-
-/* CONSTANT FUNCTIONS */
-
-const getIsMulti = (type: InputType) => {
-  return type.jsonType === 'object' ? false : true
-}
-
-const getIsReference = (type: InputType) => {
-  return 'to' in type || ('of' in type && type.of[0] && 'to' in type.of[0])
-}
-
-const getUniqueTags = (tags: Tag[]): Tag[] => {
-  if (!tags) tags = []
-
-  return tags.filter((firstTag, index) => {
-    const firstTagStringified = JSON.stringify({label: firstTag.label, value: firstTag.value})
-
-    return (
-      index ===
-      tags.flat(Infinity).findIndex((secondTag) => {
-        return (
-          JSON.stringify({label: secondTag.label, value: secondTag.value}) === firstTagStringified
-        )
-      })
-    )
-  })
-}
+  Tag,
+  GeneralTag,
+  GeneralSubscription,
+  RefTag,
+  PredefinedTags,
+  InputProps,
+  UnrefinedTags,
+  SelectProps,
+} from '../types'
 
 interface PrepareTagInput {
   customLabel: string
@@ -167,11 +80,21 @@ const revertTag = ({customLabel, customValue, isReference}: RevertTagInput) => {
   }
 }
 
-interface PrepareTagsInput {
-  tags: GeneralTag[] | RefTag[] | GeneralTag | RefTag | undefined
+interface PrepareTagsInput<TagsType extends UnrefinedTags = UnrefinedTags> {
+  tags: TagsType
   customLabel: string
   customValue: string
 }
+
+const getTagType = <TagsType extends UnrefinedTags>({
+  tags,
+  customLabel,
+  customValue,
+}: PrepareTagsInput<TagsType>) => {
+  return tags
+}
+
+// getTagType({tags: {_ref: "tasdf", _type: "reference"}, customValue: "asdf", customLabel: "asdf"})
 
 const prepareTags = async ({tags, customLabel, customValue}: PrepareTagsInput) => {
   // if tags are undefined
@@ -193,14 +116,14 @@ const prepareTags = async ({tags, customLabel, customValue}: PrepareTagsInput) =
     return tags.map(prepareTag({customLabel, customValue}))
   }
 
-  // if tags are multiple references
+  // if tags are single reference
   if ('_ref' in tags && '_type' in tags) {
     const refTag: GeneralTag = await client.fetch('*[_id == $ref][0]', {ref: tags._ref})
 
     return prepareTag({customLabel, customValue})(refTag)
   }
 
-  // if tags are multiple objects
+  // if tags are single object
   return prepareTag({customLabel, customValue})(tags)
 }
 
@@ -285,7 +208,7 @@ const useOptions = ({
       if (Array.isArray(groupOptions[group])) opts.push(...groupOptions[group])
     }
 
-    setOptions(getUniqueTags(opts))
+    setOptions(filterUniqueTags(opts))
   }, [groupOptions])
 
   const setTagOption = React.useCallback((properties: TagOptions) => {
@@ -296,7 +219,7 @@ const useOptions = ({
 }
 
 interface GetPredefinedTagsInput {
-  predefinedTags: PredefinedTagsInput
+  predefinedTags: PredefinedTags
   customLabel: string
   customValue: string
   callback: (tags: Tag[]) => any
@@ -336,7 +259,7 @@ const getTagsFromReference = ({
   document,
   customLabel,
   customValue,
-}: GetTagsFromReferenceInput): [string, any, Observable<GeneralTag[]>] => {
+}: GetTagsFromReferenceInput): [string, any, Observable<ListenEvent<GeneralTag[]>>] => {
   const query = `
   *[ _type == $document && defined(@[$customLabel]) && defined(@[$customValue])] {
     _id,
@@ -347,7 +270,7 @@ const getTagsFromReference = ({
 
   const params = {document, customLabel, customValue}
 
-  return [query, params, client.listen(query, params, listenOptions)]
+  return [query, params, client.listen<GeneralTag[]>(query, params, listenOptions)]
 }
 
 interface GetTagsFromRelatedInput {
@@ -364,7 +287,7 @@ const getTagsFromRelated = ({
   isMulti,
   customLabel,
   customValue,
-}: GetTagsFromRelatedInput): [string, any, Observable<GeneralTag[]>] => {
+}: GetTagsFromRelatedInput): [string, any, Observable<Tag[]>] => {
   const query = `
   *[
     _type == $document &&
@@ -380,23 +303,28 @@ const getTagsFromRelated = ({
   `
 
   const params = {document, field, isMulti, customLabel, customValue}
-
-  return [query, params, client.listen(query, params, listenOptions)]
+  return [
+    query,
+    params,
+    client.listen(query, params, listenOptions).pipe(
+      tap((val) => console.log(val)),
+      switchMap((val: unknown) => from(client.fetch(query, params))),
+      tap((val) => console.log(val)),
+      map((val: GeneralTag[]) => val.flat(Infinity)),
+      tap((val) => console.log(val)),
+      switchMap((val: GeneralTag[]) =>
+        from(
+          prepareTagsAsList({
+            tags: val,
+            customLabel,
+            customValue,
+          })
+        )
+      ),
+      tap((val) => console.log(val))
+    ),
+  ]
 }
-
-const ReferenceCreateWarning = () => (
-  <Card padding={[3, 3, 4]} marginBottom={[3, 3, 4]} radius={2} shadow={1} tone="caution">
-    Tag References cannot be created inline. Please set the <code>allowCreate</code> option
-    explicitly to <code>false</code> to remove this warning message.
-  </Card>
-)
-
-const ReferencePredefinedWarning = () => (
-  <Card padding={[3, 3, 4]} marginBottom={[3, 3, 4]} radius={2} shadow={1} tone="caution">
-    Tag References cannot have predefined tags. Please unset the <code>predefinedTags</code> option
-    to remove this warning message.
-  </Card>
-)
 
 export default withDocument(
   React.forwardRef<HTMLInputElement, InputProps>((props, ref: any) => {
@@ -416,8 +344,8 @@ export default withDocument(
       document, // The current document
     } = props
 
-    const isMulti = getIsMulti(type)
-    const isReference = getIsReference(type)
+    const isMulti = isSchemaMulti(type)
+    const isReference = isSchemaReference(type)
 
     const {
       predefinedTags = [],
@@ -427,7 +355,7 @@ export default withDocument(
       customValue = 'value',
       allowCreate = true,
       onCreate = async (value) => ({[customLabel]: value, [customValue]: value}),
-      reactSelectOptions = {},
+      reactSelectOptions = {} as SelectProps<typeof isMulti>,
     } = type.options ? type.options : {}
 
     const isReferenceCreateWarning = type.options && allowCreate && isReference
@@ -508,15 +436,10 @@ export default withDocument(
           customValue,
         })
 
-        relatedSubscription = observable.subscribe(async (update) => {
-          const preparedTags = await prepareTagsAsList({
-            tags: (await client.fetch(query, params)).flat(Infinity),
-            customLabel,
-            customValue,
-          })
-
+        relatedSubscription = observable.subscribe((tags) => {
+          console.log(tags)
           if (!cancelled) {
-            setTagOption({relatedTags: preparedTags})
+            setTagOption({relatedTags: tags})
             setLoadOption({relatedTags: false})
           }
         })
@@ -536,28 +459,8 @@ export default withDocument(
         setLoadOption({handleCreate: true})
 
         const newCreateValue = prepareTag({customLabel, customValue})(await onCreate(value))
-
-        setSelected((curValue) => {
-          let newValue: Tag | Tag[] | undefined
-
-          if (Array.isArray(curValue)) {
-            newValue = [...curValue, newCreateValue]
-          } else {
-            newValue = newCreateValue
-          }
-
-          let tagsForEvent = revertTags({
-            tags: newValue,
-            customLabel,
-            customValue,
-            isMulti,
-            isReference,
-          })
-
-          onChange(PatchEvent.from(tagsForEvent ? set(tagsForEvent) : unset(tagsForEvent)))
-
-          return newValue
-        })
+        if (Array.isArray(selected)) handleChange([...selected, newCreateValue])
+        else handleChange(newCreateValue)
 
         setLoadOption({handleCreate: false})
       },
@@ -596,15 +499,15 @@ export default withDocument(
       onChange: handleChange,
       isDisabled: readOnly || isLoading,
       ...reactSelectOptions,
-    }
+    } as SelectProps
 
     return (
       <FormField
         description={type.description}
         title={type.title}
-        __unstable_markers={markers} // Handles all markers including validation
-        __unstable_presence={presence} // Handles presence avatars
-        inputId={inputId} // Allows the label to connect to the input field
+        __unstable_markers={markers}
+        __unstable_presence={presence}
+        inputId={inputId}
       >
         {isReferenceCreateWarning && <ReferenceCreateWarning />}
         {isReferencePredefinedWarning && <ReferencePredefinedWarning />}
