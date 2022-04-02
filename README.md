@@ -41,7 +41,7 @@ Dive into the [Options Section](#options) for more advanced use cases like prede
     customLabel?: string
     customValue?: string
     allowCreate?: boolean
-    onCreate?: (inputValue: string) => GeneralTag
+    onCreate?: (inputValue: string) => Tag
     reactSelectOptions?: {
       [key: string]: any
     }
@@ -219,7 +219,7 @@ export default {
   title: 'Select your Tags',
   type: 'array',
   inputComponent: Input,
-  of: [{type: 'reference', to: [{type: 'mytag'}]}],
+  of: [{type: 'reference', to: [{type: 'myTagDocument'}]}],
   options: {
     ...
   }

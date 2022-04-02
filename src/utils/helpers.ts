@@ -1,5 +1,3 @@
-import type {InputType, Tag} from '../types'
-
 /**
  *
  * @param type type prop passed by sanity to input components
