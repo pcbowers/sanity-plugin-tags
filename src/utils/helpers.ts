@@ -3,8 +3,8 @@
  * @param type type prop passed by sanity to input components
  * @returns boolean defining whether the schema is an array or not
  */
-export const isSchemaMulti = (type: InputType) => {
-  return type.jsonType === 'object' ? false : true
+export const isSchemaMulti = (type: InputType): boolean => {
+  return type.jsonType !== 'object'
 }
 
 /**
@@ -12,7 +12,7 @@ export const isSchemaMulti = (type: InputType) => {
  * @param type type prop passed by sanity to input components
  * @returns boolean defining whether the schema is a reference or not
  */
-export const isSchemaReference = (type: InputType) => {
+export const isSchemaReference = (type: InputType): boolean => {
   return 'to' in type || ('of' in type && type.of[0] && 'to' in type.of[0])
 }
 
