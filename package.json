@@ -23,7 +23,8 @@
   },
   "keywords": [
     "sanity",
-    "sanity-plugin"
+    "sanity-plugin",
+    "react"
   ],
   "author": "P Christopher Bowers <pcbowers@gmail.com>",
   "license": "MIT",

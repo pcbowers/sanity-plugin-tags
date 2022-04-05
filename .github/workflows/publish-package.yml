@@ -1,0 +1,27 @@
+name: Publish NPM Package
+on:
+  release:
+    types: [published]
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Git Repository
+        uses: actions/checkout@v3
+      - run: |
+          git config user.name pcbowers
+          git config user.email pcbowers@gmail.com
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install Node.js Dependencies
+        run: npm ci
+      - name: Version NPM Package
+        run: "npm version ${{ github.event.release.tag_name }} -m 'chore(release): :bookmark: Updated Package Version to ${{ github.event.release.tag_name }} [skip-ci]'"
+      - run: git push origin HEAD:main
+      - name: Build, Lint and Publish NPM Package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
