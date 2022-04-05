@@ -69,10 +69,10 @@ function revertTag<IsReference extends boolean>({
       value: tag._value_temp,
     }
 
-    delete tempTag['_label_temp']
-    delete tempTag['_value_temp']
-    if (tempTag.label === undefined) delete tempTag['label']
-    if (tempTag.value === undefined) delete tempTag['value']
+    delete tempTag._label_temp
+    delete tempTag._value_temp
+    if (tempTag.label === undefined) delete tempTag.label
+    if (tempTag.value === undefined) delete tempTag.value
 
     return tempTag
   }
@@ -189,7 +189,7 @@ export function revertTags<IsReference extends boolean, IsMulti extends boolean>
   customValue = 'value',
   isMulti,
   isReference,
-}: RevertTagsInput<IsReference, IsMulti>) {
+}: RevertTagsInput<IsReference, IsMulti>): UnrefinedTags {
   const revert = revertTag({customLabel, customValue, isReference})
 
   // if tags are undefined

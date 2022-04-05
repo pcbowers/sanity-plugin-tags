@@ -4,11 +4,10 @@
   "description": "A multi-tag input for sanity studio",
   "main": "lib/index.js",
   "scripts": {
+    "build": "vite build",
+    "watch": "vite build --watch",
     "lint": "eslint .",
-    "build": "sanipack build",
-    "watch": "sanipack build --watch",
-    "verify": "sanipack build && sanipack verify",
-    "prepublishOnly": "npm run verify"
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "files": [
     "/lib",
@@ -29,46 +28,36 @@
   "author": "P Christopher Bowers <pcbowers@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@reach/auto-id": "^0.16.0",
-    "@sanity/ui": "^0.37.5",
-    "react-select": "^5.2.2",
-    "rxjs": "^7.5.5"
+    "react-select": "^5.2.2"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.18.0",
+    "@typescript-eslint/parser": "^5.18.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-config-sanity": "^5.1.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
-    "prettier": "^2.6.1",
-    "sanipack": "^2.1.0",
-    "typescript": "^4.6.3"
+    "prettier": "^2.6.2",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "typescript": "^4.6.3",
+    "vite": "^2.9.1"
   },
   "peerDependencies": {
+    "@reach/auto-id": "^0.16.0",
     "@sanity/base": "^2.0.9",
+    "@sanity/client": "^2.0.9",
     "@sanity/components": "^2.0.9",
     "@sanity/core": "^2.0.9",
     "@sanity/form-builder": "^2.0.9",
-    "react": "^16 || ^17"
+    "@sanity/ui": "^0.37.5",
+    "react": "^16 || ^17",
+    "react-dom": "^16 || ^17",
+    "rxjs": "^6.5.2",
+    "styled-components": "^5.2.0"
   },
   "bugs": {
     "url": "https://github.com/pcbowers/sanity-plugin-tags/issues"
   },
-  "homepage": "https://github.com/pcbowers/sanity-plugin-tags#readme",
-  "prettier": {
-    "semi": false,
-    "printWidth": 100,
-    "bracketSpacing": false,
-    "singleQuote": true
-  },
-  "eslintConfig": {
-    "parser": "sanipack/babel/eslint-parser",
-    "extends": [
-      "sanity",
-      "sanity/react",
-      "prettier"
-    ],
-    "ignorePatterns": [
-      "lib/**/"
-    ]
-  }
+  "homepage": "https://github.com/pcbowers/sanity-plugin-tags#readme"
 }

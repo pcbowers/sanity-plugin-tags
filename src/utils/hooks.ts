@@ -57,7 +57,7 @@ export const useOptions = ({
   const [groupOptions, setGroupOptions] = React.useState({} as Options)
 
   React.useEffect(() => {
-    let opts: Tag[] = []
+    const opts: Tag[] = []
     for (const group in groupOptions) {
       if (Array.isArray(groupOptions[group])) opts.push(...groupOptions[group])
     }

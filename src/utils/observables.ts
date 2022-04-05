@@ -44,7 +44,7 @@ const getGeneralObservable = ({
   customValue = 'value',
 }: GetGeneralObservableInput) => {
   return client.listen<UnrefinedTags>(query, params, listenOptions).pipe(
-    switchMap((val) => client.fetch<UnrefinedTags>(query, params)),
+    switchMap(() => client.fetch<UnrefinedTags>(query, params)),
     refineTagsPipe({customLabel, customValue})
   )
 }
@@ -77,7 +77,7 @@ export function getSelectedTags<IsMulti extends boolean>({
   isMulti,
   customLabel = 'label',
   customValue = 'value',
-}: GetSelectedTagsInput<IsMulti>) {
+}: GetSelectedTagsInput<IsMulti>): Observable<Tag | Tag[]> {
   const tagFunction = async () => tags
   return defer(() => from(tagFunction())).pipe(
     refineTagsPipe({customLabel, customValue}),
@@ -117,7 +117,7 @@ export const getPredefinedTags = ({
   predefinedTags,
   customLabel = 'label',
   customValue = 'value',
-}: GetPredefinedTagsInput) => {
+}: GetPredefinedTagsInput): Observable<Tag[]> => {
   const tagFunction =
     predefinedTags instanceof Function ? predefinedTags : async () => predefinedTags
 
@@ -143,7 +143,7 @@ export const getTagsFromReference = ({
   document,
   customLabel = 'label',
   customValue = 'value',
-}: GetTagsFromReferenceInput) => {
+}: GetTagsFromReferenceInput): Observable<Tag[]> => {
   const query = `
   *[ _type == $document && defined(@[$customLabel]) && defined(@[$customValue])] {
     _id,
@@ -185,7 +185,7 @@ export const getTagsFromRelated = ({
   isMulti,
   customLabel = 'label',
   customValue = 'value',
-}: GetTagsFromRelatedInput) => {
+}: GetTagsFromRelatedInput): Observable<Tag[]> => {
   const query = `
   *[
     _type == $document &&

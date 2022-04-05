@@ -61,7 +61,10 @@ export default withDocument(
       customLabel = 'label',
       customValue = 'value',
       allowCreate = true,
-      onCreate = async (value) => ({[customLabel]: value, [customValue]: value}),
+      onCreate = async (val: string): Promise<GeneralTag> => ({
+        [customLabel]: val,
+        [customValue]: val,
+      }),
       reactSelectOptions = {} as SelectProps<typeof isMulti>,
     } = type.options ? type.options : {}
 
@@ -73,18 +76,14 @@ export default withDocument(
     // get all tag types when the component loads
     React.useEffect(() => {
       // set generic unsubscribe function in case not used later on
-      let selectedSubscription: GeneralSubscription
-      let predefinedSubscription: GeneralSubscription
-      let relatedSubscription: GeneralSubscription
-      let referenceSubscription: GeneralSubscription
+      const defaultSubscription = {
+        unsubscribe: () => {},
+      }
 
-      selectedSubscription =
-        predefinedSubscription =
-        relatedSubscription =
-        referenceSubscription =
-          {
-            unsubscribe: () => {},
-          }
+      let selectedSubscription: GeneralSubscription = defaultSubscription
+      let predefinedSubscription: GeneralSubscription = defaultSubscription
+      let relatedSubscription: GeneralSubscription = defaultSubscription
+      let referenceSubscription: GeneralSubscription = defaultSubscription
 
       // set the loading state for each option group
       setLoadOption({
@@ -156,7 +155,7 @@ export default withDocument(
 
     // when new options are created, use this to handle it
     const handleCreate = React.useCallback(
-      async (value: string) => {
+      async (inputValue: string) => {
         // since an await is used, briefly set the load state to true
         setLoadOption({handleCreate: true})
 
@@ -164,7 +163,7 @@ export default withDocument(
         const newCreateValue = await prepareTags({
           customLabel,
           customValue,
-          tags: await onCreate(value),
+          tags: await onCreate(inputValue),
         })
 
         // now that the option is created, pass to the handleChange function
@@ -179,13 +178,13 @@ export default withDocument(
 
     // handle any change made to the select
     const handleChange = React.useCallback(
-      (value: RefinedTags) => {
+      (inputValue: RefinedTags) => {
         // set the new option
-        setSelected(value)
+        setSelected(inputValue)
 
         // revert the tags to their initial values for saving
-        let tagsForEvent = revertTags({
-          tags: value,
+        const tagsForEvent = revertTags({
+          tags: inputValue,
           customLabel,
           customValue,
           isMulti,
