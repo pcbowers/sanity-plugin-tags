@@ -19,6 +19,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier'],
   ignorePatterns: ['.eslintrc.js', 'lib/**/*', 'vite.config.ts'],
   rules: {
+    '@typescript-eslint/explicit-module-boundary-types': 0,
     '@typescript-eslint/explicit-function-return-type': 0,
     '@typescript-eslint/no-unused-vars': 1,
     'no-undef': 0,

@@ -1,7 +1,7 @@
 import sanityClient from 'part:@sanity/base/client'
 import type {ListenOptions} from '@sanity/client'
 
-export {filterUniqueTags, isSchemaReference, isSchemaMulti} from './helpers'
+export {filterUniqueTags, isSchemaReference, isSchemaMulti, get, set} from './helpers'
 export {useLoading, useOptions} from './hooks'
 export {prepareTags, prepareTagsAsList, revertTags} from './mutators'
 export {

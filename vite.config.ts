@@ -9,6 +9,7 @@ export default defineConfig({
     sourcemap: true,
     minify: true,
     outDir: path.resolve(__dirname, 'lib'),
+    emptyOutDir: false,
     rollupOptions: {
       external: (id) => {
         return Boolean(id.startsWith('part:') || excludeDeps.some((dep) => id.startsWith(dep)))

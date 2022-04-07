@@ -1,4 +1,4 @@
-import {client} from '.'
+import {client, get, set} from '.'
 
 interface PrepareTagInput {
   customLabel?: string
@@ -17,8 +17,8 @@ const prepareTag = ({customLabel = 'label', customValue = 'value'}: PrepareTagIn
       ...tag,
       _label_temp: tag.label,
       _value_temp: tag.value,
-      label: tag[customLabel],
-      value: tag[customValue],
+      label: get(tag, customLabel),
+      value: get(tag, customValue),
     }
     return tempTag
   }
@@ -63,11 +63,12 @@ function revertTag<IsReference extends boolean>({
 
     const tempTag: GeneralTag = {
       ...tag,
-      [customValue]: tag.value,
-      [customLabel]: tag.label,
       label: tag._label_temp,
       value: tag._value_temp,
     }
+
+    set(tempTag, customLabel, tag.label)
+    set(tempTag, customValue, tag.value)
 
     delete tempTag._label_temp
     delete tempTag._value_temp

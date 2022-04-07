@@ -37,3 +37,82 @@ export const filterUniqueTags = (tags: Tag[]): Tag[] => {
     )
   })
 }
+
+/**
+ * Get value from object through string/array path
+ * @param obj The object with the key you want to retrieve
+ * @param path The path (either a string or an array of strings) to the key (i.e. a.b.c or ['a', 'b', 'c'])
+ * @param defaultValue A value to return
+ * @returns The value at the end of the path or a default value
+ */
+export const get = <DefaultValue extends unknown>(
+  obj: Record<string, unknown> | unknown,
+  path: string | string[],
+  defaultValue?: DefaultValue
+): any => {
+  if (!obj) return defaultValue
+
+  let props: string[] | boolean = false
+  let prop: string | undefined
+
+  if (Array.isArray(path)) props = path.slice(0)
+  if (typeof path === 'string') props = path.split('.')
+  if (!Array.isArray(props)) throw new Error('path must be an array or a string')
+
+  while (props.length) {
+    prop = props.shift()
+    if (!prop) return defaultValue
+    if (!obj) return defaultValue
+    if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) return defaultValue
+    if (!(prop in obj)) return defaultValue
+    obj = (obj as {[key: string]: unknown})[prop]
+  }
+
+  return obj
+}
+
+/**
+ * Checks to make sure the prop passed is not a prototype
+ * @param prop A string defining a prop
+ * @returns True if not prototype, else false
+ */
+function prototypeCheck(prop: string) {
+  if (prop === '__proto__' || prop === 'constructor' || prop === 'prototype') return false
+  return true
+}
+
+/**
+ * Set value from object through string/array path
+ * @param obj The object you want to add to
+ * @param path The path to store the new value (either a string or an array of strings) to the key (i.e. a.b.c or ['a', 'b', 'c'])
+ * @param value The value to add to the object
+ * @returns True or false defining whether it is sucessfully added
+ */
+export const set = <Value extends unknown>(
+  obj: Record<string, unknown>,
+  path: string | string[],
+  value: Value
+): boolean => {
+  let props: string[] | boolean = false
+
+  if (Array.isArray(path)) props = path.slice(0)
+  if (typeof path === 'string') props = path.split('.')
+  if (!Array.isArray(props)) throw new Error('path must be an array or a string')
+
+  const lastProp = props.pop()
+  if (!lastProp) return false
+  if (!prototypeCheck(lastProp)) throw new Error('setting of prototype values not supported')
+
+  let thisProp: string | undefined
+  while ((thisProp = props.shift())) {
+    if (!prototypeCheck(thisProp)) throw new Error('setting of prototype values not supported')
+    if (!thisProp) return false
+    if (!(thisProp in obj)) obj[thisProp] = {}
+    obj = obj[thisProp] as Record<string, unknown>
+    if (!obj || typeof obj !== 'object') return false
+  }
+
+  obj[lastProp] = value
+
+  return true
+}

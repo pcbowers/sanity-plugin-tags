@@ -152,7 +152,11 @@ export const getTagsFromReference = ({
   }
   `
 
-  const params = {document, customLabel, customValue}
+  const params = {
+    document,
+    customLabel: customLabel.split('.')[0],
+    customValue: customValue.split('.')[0],
+  }
 
   return getGeneralObservable({
     query,
@@ -200,7 +204,13 @@ export const getTagsFromRelated = ({
   ][$field]
   `
 
-  const params = {document, field, isMulti, customLabel, customValue}
+  const params = {
+    document,
+    field,
+    isMulti,
+    customLabel: customLabel.split('.')[0],
+    customValue: customValue.split('.')[0],
+  }
 
   return getGeneralObservable({
     query,
