@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-tags",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A multi-tag input for sanity studio",
   "main": "lib/index.js",
   "source": "dist/*.js",
