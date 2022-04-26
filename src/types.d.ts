@@ -51,7 +51,8 @@ declare global {
     customLabel?: string
     customValue?: string
     allowCreate?: boolean
-    onCreate?: (inputValue: string) => GeneralTag
+    onCreate?: (inputValue: string) => GeneralTag | Promise<GeneralTag>
+    checkValid?: (inputValue: string, currentValues: string[]) => boolean
     reactSelectOptions?: Props<Tag, boolean, GroupBase<Tag>>
   }
 
