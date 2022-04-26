@@ -1,6 +1,9 @@
 import React from 'react'
 import {FormField} from '@sanity/base/components'
-import PatchEvent, {set, unset} from '@sanity/form-builder/PatchEvent'
+import PatchEvent, {
+  set as setPatchValue,
+  unset as unsetPatchValue,
+} from '@sanity/form-builder/PatchEvent'
 import {useId} from '@reach/auto-id'
 import CreatableSelect from 'react-select/creatable'
 import Select from 'react-select'
@@ -19,6 +22,7 @@ import {
   getPredefinedTags,
   getTagsFromReference,
   getTagsFromRelated,
+  set,
 } from '../utils'
 
 import {ReferenceCreateWarning, ReferencePredefinedWarning} from './ReferenceWarnings'
@@ -61,10 +65,14 @@ export default withDocument(
       customLabel = 'label',
       customValue = 'value',
       allowCreate = true,
-      onCreate = async (val: string): Promise<GeneralTag> => ({
-        [customLabel]: val,
-        [customValue]: val,
-      }),
+      onCreate = async (val: string): Promise<GeneralTag> => {
+        const tag: GeneralTag = {}
+        set(tag, customLabel, val)
+        set(tag, customValue, val)
+        return tag
+      },
+      checkValid = (inputValue: string, currentValues: string[]) =>
+        !currentValues.includes(inputValue) && !!inputValue && inputValue.trim() === inputValue,
       reactSelectOptions = {} as SelectProps<typeof isMulti>,
     } = type.options ? type.options : {}
 
@@ -192,7 +200,11 @@ export default withDocument(
         })
 
         // save the values
-        onChange(PatchEvent.from(tagsForEvent ? set(tagsForEvent) : unset(tagsForEvent)))
+        onChange(
+          PatchEvent.from(
+            tagsForEvent ? setPatchValue(tagsForEvent) : unsetPatchValue(tagsForEvent)
+          )
+        )
       },
       [onChange]
     )
@@ -210,6 +222,12 @@ export default withDocument(
       isMulti,
       options,
       value: selected,
+      isValidNewOption: (inputValue: string, selectedValues: Tag[], selectedOptions: Tag[]) => {
+        return checkValid(inputValue, [
+          ...selectedOptions.map((opt) => opt.value),
+          ...selectedValues.map((val) => val.value),
+        ])
+      },
       onCreateOption: handleCreate,
       onChange: handleChange,
       isDisabled: readOnly || isLoading,

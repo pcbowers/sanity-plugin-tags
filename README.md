@@ -41,7 +41,8 @@ Dive into the [Options Section](#options) for more advanced use cases like prede
     customLabel?: string
     customValue?: string
     allowCreate?: boolean
-    onCreate?: (inputValue: string) => Tag
+    onCreate?: (inputValue: string) => Tag | Promise<Tag>
+    checkValid?: (inputValue: string, currentValues: string[]) => boolean
     reactSelectOptions?: {
       [key: string]: any
     }
@@ -183,6 +184,26 @@ If you want to edit the label or value of the tag when a new one is created befo
     label: value,
     value: value.toLowerCase().replace(/\W/g, '-'),
   })
+  // ...
+}
+```
+
+### checkValid
+
+`default: (inputValue: string, currentValues: string[]) => !currentValues.includes(inputValue) && !!inputValue && inputValue.trim() === inputValue`
+
+This allows you to check the validity of a tag when creation is allowed. `inputValue` contains the string of the input while `currentValues` contains an array of strings that represent all of the values of any options available to select as well as any already-selected options.
+
+```javascript
+{
+  // ...
+  checkValid: (input, values) => {
+    return (
+      !!input &&
+      input.trim() === input &&
+      !values.includes(input.trim().toLowerCase().replace(/\W/g, '-'))
+    )
+  }
   // ...
 }
 ```
