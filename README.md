@@ -1,5 +1,7 @@
 # sanity-plugin-tags
 
+> This is a **Sanity Studio v3** plugin.
+
 A multi-tag input for sanity studio. Fully featured with autocomplete capabilities, live updates, predefined tag options, style and component customizability, and much more.
 
 ![Example Picture](https://github.com/pcbowers/sanity-plugin-tags/blob/main/docs/example.png?raw=true)
@@ -10,7 +12,19 @@ A multi-tag input for sanity studio. Fully featured with autocomplete capabiliti
 
 ## Use
 
-No configuration necessary! Simply use 'tag' or 'tags' as a type (single or multi select respectively) in your fields. If you want autocompletion, set the `includeFromRelated` option to the name of your field.
+Add it as a plugin in `sanity.config.ts` (or .js):
+
+```ts
+import {defineConfig} from 'sanity'
+import {tags} from 'sanity-plugin-tags'
+
+export default defineConfig({
+  //...
+  plugins: [tags({})],
+})
+```
+
+Simply use 'tag' or 'tags' as a type (single or multi select respectively) in your fields. If you want autocompletion, set the `includeFromRelated` option to the name of your field.
 
 That's it! It will even update the autocompletion list live as changes are made to other documents!
 
@@ -226,62 +240,17 @@ If you want to override React Select's components see [Parts](#parts) for more i
 }
 ```
 
-## Parts
-
-### part:tags/components/input
-
-The main benefit of this plugin is its input component. To maximize its usefulness, you can import the Input component and use it elsewhere. If you already have a Tag document and want to create tags by reference rather than by object, you could add a field that uses this as an input component.
-
-```javascript
-import Input from 'part:tags/components/input'
-
-export default {
-  name: 'my-tag-select',
-  title: 'Select your Tags',
-  type: 'array',
-  inputComponent: Input,
-  of: [{type: 'reference', to: [{type: 'myTagDocument'}]}],
-  options: {
-    ...
-  }
-}
-```
-
-Note that if you do choose to do this, tags by reference are limited by the input component in that they do not support `predefinedTags` or `allowCreate`.
-
-You can also implement this input component yourself if you would like.
-
-### part:tags/components/select
-
-If you would like to specify custom components for React Select without having to rewrite the entire Input component specified by this plugin, implement this part and export an object containing each component. See [React Select's documentation](https://react-select.com/components) for more information.
-
-The current implementation defines no custom components, so you lose no functionality by implementing this part yourself.
-
-### part:tags/schemas/tags-default
-
-If you need to import the current `tags` schema, use this part.
-
-### part:tags/schemas/tag-default
-
-If you need to import the current `tag` schema, use this part.
+## Develop & test
 
 ## Contribute
 
 I love feedback, and any help is appreciated! Feel free to install the plugin, submit an issue, or open a PR.
 
-To install the plugin for development follow these steps:
+This plugin uses [@sanity/plugin-kit](https://github.com/sanity-io/plugin-kit)
+with default configuration for build & watch scripts.
 
-1. Clone the repository
-2. `cd sanity-plugin-tags`
-3. `npm install`
-4. `npm link`
-5. `npm run watch` (this will begin building the plugin for development)
-6. cd into the sanity studio that you will be using for testing
-7. `npm link sanity-plugin-tags`
-8. Add 'tags' to your sanity plugins inside your `sanity.json` file
-9. `sanity start`
-
-That's it! Now any changes you make to the plugin will appear automatically in your sanity studio development environment as you work in it!
+See [Testing a plugin in Sanity Studio](https://github.com/sanity-io/plugin-kit#testing-a-plugin-in-sanity-studio)
+on how to run this plugin with hotreload in the studio.
 
 ## Acknowledgements
 

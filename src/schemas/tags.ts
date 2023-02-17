@@ -1,11 +1,12 @@
-import Input from 'part:tags/components/input'
+import {SchemaTypeDefinition} from 'sanity'
+import {TagsInput} from '../components/TagsInput'
 
-const inputSchema = {
+export const tagsSchema: SchemaTypeDefinition = {
   name: 'tags',
   title: 'Tags',
   type: 'array',
-  inputComponent: Input,
+  components: {
+    input: TagsInput,
+  },
   of: [{type: 'tag'}],
 }
-
-export default inputSchema

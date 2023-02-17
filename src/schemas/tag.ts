@@ -1,10 +1,13 @@
-import Input from 'part:tags/components/input'
+import {SchemaTypeDefinition} from 'sanity'
+import {TagsInput} from '../components/TagsInput'
 
-const tag = {
+export const tagSchema: SchemaTypeDefinition = {
   name: 'tag',
   title: 'Tag',
   type: 'object',
-  inputComponent: Input,
+  components: {
+    input: TagsInput,
+  },
   fields: [
     {
       name: 'value',
@@ -16,5 +19,3 @@ const tag = {
     },
   ],
 }
-
-export default tag

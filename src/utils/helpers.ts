@@ -1,3 +1,5 @@
+import {InputType, Tag} from '../types'
+
 /**
  *
  * @param type type prop passed by sanity to input components
@@ -21,9 +23,7 @@ export const isSchemaReference = (type: InputType): boolean => {
  * @param tags an array of tags (i.e. { label: string, value: string })
  * @returns a filtered and flattened version of the initial tags array by uniqueness
  */
-export const filterUniqueTags = (tags: Tag[]): Tag[] => {
-  if (!tags) tags = []
-
+export const filterUniqueTags = (tags: Tag[] = []): Tag[] => {
   return tags.flat(Infinity).filter((firstTag, index) => {
     const firstTagStringified = JSON.stringify({label: firstTag.label, value: firstTag.value})
 
@@ -46,11 +46,11 @@ export const filterUniqueTags = (tags: Tag[]): Tag[] => {
  * @returns The value at the end of the path or a default value
  */
 export const get = <DefaultValue extends unknown>(
-  obj: Record<string, unknown> | unknown,
+  object: Record<string, unknown> | unknown,
   path: string | string[],
   defaultValue?: DefaultValue
 ): any => {
-  if (!obj) return defaultValue
+  if (!object) return defaultValue
 
   let props: string[] | boolean = false
   let prop: string | undefined
@@ -59,6 +59,7 @@ export const get = <DefaultValue extends unknown>(
   if (typeof path === 'string') props = path.split('.')
   if (!Array.isArray(props)) throw new Error('path must be an array or a string')
 
+  let obj: object | unknown = object
   while (props.length) {
     prop = props.shift()
     if (!prop) return defaultValue
@@ -88,8 +89,8 @@ function prototypeCheck(prop: string) {
  * @param value The value to add to the object
  * @returns True or false defining whether it is sucessfully added
  */
-export const set = <Value extends unknown>(
-  obj: Record<string, unknown>,
+export const setAtPath = <Value extends unknown>(
+  object: Record<string, unknown>,
   path: string | string[],
   value: Value
 ): boolean => {
@@ -104,6 +105,7 @@ export const set = <Value extends unknown>(
   if (!prototypeCheck(lastProp)) throw new Error('setting of prototype values not supported')
 
   let thisProp: string | undefined
+  let obj = object
   while ((thisProp = props.shift())) {
     if (!prototypeCheck(thisProp)) throw new Error('setting of prototype values not supported')
     if (!thisProp) return false
@@ -115,4 +117,13 @@ export const set = <Value extends unknown>(
   obj[lastProp] = value
 
   return true
+}
+
+export function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    value.constructor === Object &&
+    Object.prototype.toString.call(value) === '[object Object]'
+  )
 }

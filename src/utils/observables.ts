@@ -1,26 +1,37 @@
-import {prepareTagsAsList, client, listenOptions, filterUniqueTags} from '../utils'
+import {SanityClient} from '@sanity/client'
 import {from, defer, pipe, Observable} from 'rxjs'
 import {map, switchMap} from 'rxjs/operators'
+import {GeneralTag, RefTag, PredefinedTags, Tag, UnrefinedTags} from '../types'
+import {listenOptions} from './client'
+import {filterUniqueTags} from './helpers'
+import {prepareTagsAsList} from './mutators'
 
 interface RefineTagsPipeInput {
+  client: SanityClient
   customLabel?: string
   customValue?: string
 }
 
 /**
  * A custom pipe function that can be used in an observable pipe to refine tags
+ * @param client A Sanity client
  * @param customLabel a string with a custom label key to be swapped on the tag(s)
  * @param customValue a string with a value label key to be swapped on the tag(s)
  * @returns A custom pipe function
  */
-const refineTagsPipe = ({customLabel = 'label', customValue = 'value'}: RefineTagsPipeInput) =>
+const refineTagsPipe = ({
+  client,
+  customLabel = 'label',
+  customValue = 'value',
+}: RefineTagsPipeInput) =>
   pipe(
     map((val) => (Array.isArray(val) ? val.flat(Infinity) : val) as UnrefinedTags),
-    switchMap((val) => prepareTagsAsList({tags: val, customLabel, customValue})),
+    switchMap((val) => prepareTagsAsList({client, tags: val, customLabel, customValue})),
     map((val) => filterUniqueTags(val))
   )
 
 interface GetGeneralObservableInput {
+  client: SanityClient
   query: string
   params: {
     [key: string]: any
@@ -31,6 +42,7 @@ interface GetGeneralObservableInput {
 
 /**
  * A generic observable that will watch a query and return refined tags
+ * @param client A Sanity client
  * @param query A GROQ query for the sanity client
  * @param params A list of GROQ params for the sanity client
  * @param customLabel a string with a custom label key to be swapped on the tag(s)
@@ -38,18 +50,20 @@ interface GetGeneralObservableInput {
  * @returns An observable that watches for any changes on the query and params
  */
 const getGeneralObservable = ({
+  client,
   query,
   params,
   customLabel = 'label',
   customValue = 'value',
 }: GetGeneralObservableInput) => {
-  return client.listen<UnrefinedTags>(query, params, listenOptions).pipe(
+  return client.listen<NonNullable<UnrefinedTags>>(query, params, listenOptions).pipe(
     switchMap(() => client.fetch<UnrefinedTags>(query, params)),
-    refineTagsPipe({customLabel, customValue})
+    refineTagsPipe({client, customLabel, customValue})
   )
 }
 
 interface GetSelectedTagsInput<IsMulti extends boolean = boolean> {
+  client: SanityClient
   tags: UnrefinedTags
   isMulti: IsMulti
   customLabel?: string
@@ -58,6 +72,7 @@ interface GetSelectedTagsInput<IsMulti extends boolean = boolean> {
 
 /**
  * Manipulate the selected tags into a list of refined tags
+ * @param client A Sanity client
  * @param tags A list or singleton of RefTag or GeneralTag that will act as the selected tags for react-select
  * @param customLabel a string with a custom label key to be swapped on the tag(s)
  * @param customValue a string with a value label key to be swapped on the tag(s)
@@ -73,6 +88,7 @@ export function getSelectedTags<IsMulti extends boolean>(
   params: GetSelectedTagsInput<IsMulti>
 ): Observable<Tag | Tag[]>
 export function getSelectedTags<IsMulti extends boolean>({
+  client,
   tags,
   isMulti,
   customLabel = 'label',
@@ -80,7 +96,7 @@ export function getSelectedTags<IsMulti extends boolean>({
 }: GetSelectedTagsInput<IsMulti>): Observable<Tag | Tag[]> {
   const tagFunction = async () => tags
   return defer(() => from(tagFunction())).pipe(
-    refineTagsPipe({customLabel, customValue}),
+    refineTagsPipe({client, customLabel, customValue}),
     map((val) => (isMulti ? val : val[0]))
   )
 }
@@ -101,6 +117,7 @@ const predefinedTagWrapper = async (
 }
 
 interface GetPredefinedTagsInput {
+  client: SanityClient
   predefinedTags: PredefinedTags
   customLabel?: string
   customValue?: string
@@ -108,12 +125,14 @@ interface GetPredefinedTagsInput {
 
 /**
  * Manipulate the predefined tags into a list of refined tags
+ * @param client A Sanity client
  * @param predefinedTags A list or singleton of RefTag or GeneralTag that will act as predefined tags for react-select
  * @param customLabel a string with a custom label key to be swapped on the tag(s)
  * @param customValue a string with a value label key to be swapped on the tag(s)
  * @returns An observable that returns pre-refined tags received from the predefined tags option
  */
 export const getPredefinedTags = ({
+  client,
   predefinedTags,
   customLabel = 'label',
   customValue = 'value',
@@ -122,11 +141,12 @@ export const getPredefinedTags = ({
     predefinedTags instanceof Function ? predefinedTags : async () => predefinedTags
 
   return defer(() =>
-    from(predefinedTagWrapper(tagFunction)).pipe(refineTagsPipe({customLabel, customValue}))
+    from(predefinedTagWrapper(tagFunction)).pipe(refineTagsPipe({client, customLabel, customValue}))
   )
 }
 
 interface GetTagsFromReferenceInput {
+  client: SanityClient
   document: string
   customLabel?: string
   customValue?: string
@@ -134,12 +154,14 @@ interface GetTagsFromReferenceInput {
 
 /**
  * Observes changes to a referenced document and returns refined tags
+ * @param client A Sanity client
  * @param document a string that matches a document type in the sanity schema
  * @param customLabel a string with a custom label key to be swapped on the tag(s)
  * @param customValue a string with a value label key to be swapped on the tag(s)
  * @returns An observable that returns pre-refined tags received from the referenced document
  */
 export const getTagsFromReference = ({
+  client,
   document,
   customLabel = 'label',
   customValue = 'value',
@@ -159,6 +181,7 @@ export const getTagsFromReference = ({
   }
 
   return getGeneralObservable({
+    client,
     query,
     params,
     customLabel,
@@ -167,6 +190,7 @@ export const getTagsFromReference = ({
 }
 
 interface GetTagsFromRelatedInput {
+  client: SanityClient
   document: string
   field: string
   isMulti: boolean
@@ -176,6 +200,7 @@ interface GetTagsFromRelatedInput {
 
 /**
  * Observes changes to related objects and returns refined tags
+ * @param client A Sanity client
  * @param document a string that matches the current document type
  * @param field a string that matches the name of the field to pull from
  * @param isMulti whether or not the related field is an array or an object
@@ -184,6 +209,7 @@ interface GetTagsFromRelatedInput {
  * @returns An observable that returns pre-refined tags received from the related field within the document
  */
 export const getTagsFromRelated = ({
+  client,
   document,
   field,
   isMulti,
@@ -213,6 +239,7 @@ export const getTagsFromRelated = ({
   }
 
   return getGeneralObservable({
+    client,
     query,
     params,
     customLabel,

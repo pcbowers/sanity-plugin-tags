@@ -1,30 +1,25 @@
-import React from 'react'
-import {FormField} from '@sanity/base/components'
-import PatchEvent, {
-  set as setPatchValue,
-  unset as unsetPatchValue,
-} from '@sanity/form-builder/PatchEvent'
-import {useId} from '@reach/auto-id'
-import CreatableSelect from 'react-select/creatable'
+import React, {forwardRef, useCallback, useEffect} from 'react'
 import Select from 'react-select'
-
-import {withDocument} from 'part:@sanity/form-builder'
-import CustomSelectComponents from 'part:tags/components/select'
-
+import CreatableSelect from 'react-select/creatable'
+import StateManagedSelect from 'react-select/dist/declarations/src/stateManager'
+import {set, unset, useClient, useFormValue} from 'sanity'
 import {
-  isSchemaMulti,
-  isSchemaReference,
-  useLoading,
-  useOptions,
-  prepareTags,
-  revertTags,
-  getSelectedTags,
+  GeneralSubscription,
+  GeneralTag,
+  RefinedTags,
+  SelectProps,
+  Tag,
+  TagsInputProps,
+} from '../types'
+import {isSchemaMulti, isSchemaReference, setAtPath} from '../utils/helpers'
+import {useLoading, useOptions} from '../utils/hooks'
+import {prepareTags, revertTags} from '../utils/mutators'
+import {
   getPredefinedTags,
+  getSelectedTags,
   getTagsFromReference,
   getTagsFromRelated,
-  set,
-} from '../utils'
-
+} from '../utils/observables'
 import {ReferenceCreateWarning, ReferencePredefinedWarning} from './ReferenceWarnings'
 
 // TODO: Allow reference creation inline
@@ -35,27 +30,24 @@ import {ReferenceCreateWarning, ReferencePredefinedWarning} from './ReferenceWar
 // TODO: Allow object editing inline (stretch ??)
 // TODO: Allow object deleting inline (stretch ??)
 
-export default withDocument(
-  React.forwardRef<HTMLInputElement, InputProps>((props, ref: any) => {
+export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
+  (props: TagsInputProps, ref: React.Ref<Select>) => {
+    const client = useClient()
+    const _type = useFormValue(['_type']) as string
     const [selected, setSelected] = React.useState<RefinedTags>(undefined)
     const [isLoading, , setLoadOption] = useLoading({})
     const [options, , setTagOption] = useOptions({})
 
     const {
-      type, // Schema information
+      schemaType, // Schema information
       value, // Current field value
       readOnly, // Boolean if field is not editable
-      markers, // Markers including validation rules
-      presence, // Presence information for collaborative avatars
-      onFocus, // Method to handle focus state
-      onBlur, // Method to handle blur state
       onChange, // Method to handle patch events
-      document, // The current document
     } = props
 
     // get schema types (whether or not array, whether or not reference)
-    const isMulti = isSchemaMulti(type)
-    const isReference = isSchemaReference(type)
+    const isMulti = isSchemaMulti(schemaType)
+    const isReference = isSchemaReference(schemaType)
 
     // define all options passed to input
     const {
@@ -67,24 +59,24 @@ export default withDocument(
       allowCreate = true,
       onCreate = async (val: string): Promise<GeneralTag> => {
         const tag: GeneralTag = {}
-        set(tag, customLabel, val)
-        set(tag, customValue, val)
+        setAtPath(tag, customLabel, val)
+        setAtPath(tag, customValue, val)
         return tag
       },
       checkValid = (inputValue: string, currentValues: string[]) =>
         !currentValues.includes(inputValue) && !!inputValue && inputValue.trim() === inputValue,
       reactSelectOptions = {} as SelectProps<typeof isMulti>,
-    } = type.options ? type.options : {}
+    } = schemaType.options ? schemaType.options : {}
 
     // check if reference warnings need to be generated
-    const isReferenceCreateWarning = type.options && allowCreate && isReference
+    const isReferenceCreateWarning = schemaType.options && allowCreate && isReference
     const isReferencePredefinedWarning =
-      type.options && !!type.options.predefinedTags && isReference
+      schemaType.options && !!schemaType.options.predefinedTags && isReference
 
     // get all tag types when the component loads
-    React.useEffect(() => {
+    useEffect(() => {
       // set generic unsubscribe function in case not used later on
-      const defaultSubscription = {
+      const defaultSubscription: GeneralSubscription = {
         unsubscribe: () => {},
       }
 
@@ -103,6 +95,7 @@ export default withDocument(
 
       // setup the selected observable
       selectedSubscription = getSelectedTags({
+        client,
         tags: value,
         customLabel,
         customValue,
@@ -114,6 +107,7 @@ export default withDocument(
 
       // setup the predefined observable
       predefinedSubscription = getPredefinedTags({
+        client,
         predefinedTags,
         customLabel,
         customValue,
@@ -125,6 +119,7 @@ export default withDocument(
       // if true, setup the reference observable
       if (typeof includeFromReference === 'string') {
         referenceSubscription = getTagsFromReference({
+          client,
           document: includeFromReference,
           customLabel,
           customValue,
@@ -137,9 +132,10 @@ export default withDocument(
       }
 
       // if true, setup the related observable
-      if (typeof includeFromRelated === 'string') {
+      if (typeof includeFromRelated === 'string' && schemaType.type) {
         relatedSubscription = getTagsFromRelated({
-          document: document._type,
+          client,
+          document: schemaType.type?.name,
           field: includeFromRelated,
           isMulti,
           customLabel,
@@ -169,6 +165,7 @@ export default withDocument(
 
         // prepare the tag based on the option onCreate
         const newCreateValue = await prepareTags({
+          client,
           customLabel,
           customValue,
           tags: await onCreate(inputValue),
@@ -185,7 +182,7 @@ export default withDocument(
     )
 
     // handle any change made to the select
-    const handleChange = React.useCallback(
+    const handleChange = useCallback(
       (inputValue: RefinedTags) => {
         // set the new option
         setSelected(inputValue)
@@ -200,25 +197,15 @@ export default withDocument(
         })
 
         // save the values
-        onChange(
-          PatchEvent.from(
-            tagsForEvent ? setPatchValue(tagsForEvent) : unsetPatchValue(tagsForEvent)
-          )
-        )
+        onChange(tagsForEvent ? set(tagsForEvent) : unset(tagsForEvent))
       },
       [onChange]
     )
 
-    // create a unique id
-    const inputId = useId()
-
     // set up the options for react-select
     const selectOptions = {
       isLoading,
-      onFocus,
-      onBlur,
       ref,
-      inputId,
       isMulti,
       options,
       value: selected,
@@ -234,26 +221,16 @@ export default withDocument(
       ...reactSelectOptions,
     } as SelectProps
 
-    // return the Select Component
     return (
-      <FormField
-        description={type.description}
-        title={type.title}
-        __unstable_markers={markers}
-        __unstable_presence={presence}
-        inputId={inputId}
-      >
+      <>
         {isReferenceCreateWarning && <ReferenceCreateWarning />}
         {isReferencePredefinedWarning && <ReferencePredefinedWarning />}
         {allowCreate && !isReference ? (
-          <CreatableSelect
-            {...selectOptions}
-            components={CustomSelectComponents as SelectComponents}
-          />
+          <CreatableSelect {...selectOptions} />
         ) : (
-          <Select {...selectOptions} components={CustomSelectComponents as SelectComponents} />
+          <Select {...selectOptions} />
         )}
-      </FormField>
+      </>
     )
-  })
+  }
 )

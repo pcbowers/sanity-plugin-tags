@@ -1,4 +1,6 @@
-import {client, get, set} from '.'
+import {SanityClient} from '@sanity/client'
+import {GeneralTag, RefinedTags, RefTag, Tag, UnrefinedTags} from '../types'
+import {get, isPlainObject, setAtPath} from './helpers'
 
 interface PrepareTagInput {
   customLabel?: string
@@ -15,8 +17,10 @@ const prepareTag = ({customLabel = 'label', customValue = 'value'}: PrepareTagIn
   return (tag: GeneralTag) => {
     const tempTag: Tag = {
       ...tag,
-      _label_temp: tag.label,
-      _value_temp: tag.value,
+      _type: 'tag',
+      _key: tag.value,
+      _labelTemp: tag.label,
+      _valueTemp: tag.value,
       label: get(tag, customLabel),
       value: get(tag, customValue),
     }
@@ -63,15 +67,15 @@ function revertTag<IsReference extends boolean>({
 
     const tempTag: GeneralTag = {
       ...tag,
-      label: tag._label_temp,
-      value: tag._value_temp,
+      label: tag._labelTemp,
+      value: tag._valueTemp,
     }
 
-    set(tempTag, customLabel, tag.label)
-    set(tempTag, customValue, tag.value)
+    setAtPath(tempTag, customLabel, tag.label)
+    setAtPath(tempTag, customValue, tag.value)
 
-    delete tempTag._label_temp
-    delete tempTag._value_temp
+    delete tempTag._labelTemp
+    delete tempTag._valueTemp
     if (tempTag.label === undefined) delete tempTag.label
     if (tempTag.value === undefined) delete tempTag.value
 
@@ -80,6 +84,7 @@ function revertTag<IsReference extends boolean>({
 }
 
 interface PrepareTagsInput<TagType extends UnrefinedTags = UnrefinedTags> {
+  client: SanityClient
   tags: TagType
   customLabel?: string
   customValue?: string
@@ -91,6 +96,7 @@ interface PrepareTagsInput<TagType extends UnrefinedTags = UnrefinedTags> {
  * @returns A prepared list of tag(s) that preserves any custom labels or values
  */
 export const prepareTags = async <TagType extends UnrefinedTags>({
+  client,
   tags,
   customLabel = 'label',
   customValue = 'value',
@@ -117,7 +123,7 @@ export const prepareTags = async <TagType extends UnrefinedTags>({
   if (Array.isArray(tags)) return tags.map(prepare)
 
   // reference singleton
-  if ('_ref' in tags && '_type' in tags)
+  if (isPlainObject(tags) && '_ref' in tags && '_type' in tags)
     return prepare(await client.fetch('*[_id == $ref][0]', {ref: tags._ref}))
 
   // object singleton
@@ -198,15 +204,15 @@ export function revertTags<IsReference extends boolean, IsMulti extends boolean>
 
   if (isMulti) {
     // ensure it is actually an array
-    if (!Array.isArray(tags)) tags = [tags]
+    const tagsArray = Array.isArray(tags) ? tags : [tags]
 
     // revert and return array
-    return tags.map(revert)
+    return tagsArray.map(revert)
   }
 
   // not multi, so ensure is a single tag
-  if (Array.isArray(tags)) tags = tags[0]
+  const tag = Array.isArray(tags) ? tags[0] : tags
 
   // revert tag
-  return revert(tags)
+  return revert(tag)
 }
