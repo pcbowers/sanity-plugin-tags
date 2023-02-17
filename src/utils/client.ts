@@ -1,3 +1,4 @@
+import {useClient as useSanityClient} from 'sanity'
 import {ListenOptions} from '@sanity/client'
 
 /**
@@ -8,4 +9,9 @@ export const listenOptions: ListenOptions = {
   includePreviousRevision: false,
   visibility: 'query',
   events: ['welcome', 'mutation', 'reconnect'],
+}
+
+export const useClient = () => {
+  const sanityClient = useSanityClient({apiVersion: '2023-02-01'})
+  return sanityClient
 }

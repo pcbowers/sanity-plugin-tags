@@ -2,7 +2,7 @@ import React, {forwardRef, useCallback, useEffect} from 'react'
 import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import StateManagedSelect from 'react-select/dist/declarations/src/stateManager'
-import {set, unset, useClient, useFormValue} from 'sanity'
+import {set, unset, useFormValue} from 'sanity'
 import {
   GeneralSubscription,
   GeneralTag,
@@ -11,6 +11,7 @@ import {
   Tag,
   TagsInputProps,
 } from '../types'
+import {useClient} from '../utils/client'
 import {isSchemaMulti, isSchemaReference, setAtPath} from '../utils/helpers'
 import {useLoading, useOptions} from '../utils/hooks'
 import {prepareTags, revertTags} from '../utils/mutators'
