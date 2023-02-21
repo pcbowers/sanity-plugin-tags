@@ -34,7 +34,7 @@ import {ReferenceCreateWarning, ReferencePredefinedWarning} from './ReferenceWar
 export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
   (props: TagsInputProps, ref: React.Ref<Select>) => {
     const client = useClient()
-    const _type = useFormValue(['_type']) as string
+    const documentId = useFormValue(['_id']) as string
     const [selected, setSelected] = React.useState<RefinedTags>(undefined)
     const [isLoading, , setLoadOption] = useLoading({})
     const [options, , setTagOption] = useOptions({})
@@ -133,10 +133,10 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
       }
 
       // if true, setup the related observable
-      if (typeof includeFromRelated === 'string' && schemaType.type) {
+      if (typeof includeFromRelated === 'string') {
         relatedSubscription = getTagsFromRelated({
           client,
-          document: schemaType.type?.name,
+          documentId,
           field: includeFromRelated,
           isMulti,
           customLabel,
