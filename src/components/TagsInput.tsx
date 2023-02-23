@@ -3,6 +3,7 @@ import Select from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import StateManagedSelect from 'react-select/dist/declarations/src/stateManager'
 import {set, unset, useFormValue} from 'sanity'
+import {usePrefersDark} from '@sanity/ui'
 import {
   GeneralSubscription,
   GeneralTag,
@@ -22,6 +23,7 @@ import {
   getTagsFromRelated,
 } from '../utils/observables'
 import {ReferenceCreateWarning, ReferencePredefinedWarning} from './ReferenceWarnings'
+import styles from './TagsInput.module.css'
 
 // TODO: Allow reference creation inline
 // TODO: Allow reference merging inline (stretch ??)
@@ -38,6 +40,7 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
     const [selected, setSelected] = React.useState<RefinedTags>(undefined)
     const [isLoading, , setLoadOption] = useLoading({})
     const [options, , setTagOption] = useOptions({})
+    const prefersDark = usePrefersDark()
 
     const {
       schemaType, // Schema information
@@ -219,6 +222,20 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
       onCreateOption: handleCreate,
       onChange: handleChange,
       isDisabled: readOnly || isLoading,
+      classNames: prefersDark
+        ? {
+            cantainer: () => styles.container,
+            control: () => styles.control,
+            menu: () => styles.menu,
+            option: () => styles.option,
+            indicatorSeparator: () => styles.indicatorSeparator,
+            placeholder: () => styles.placeholder,
+            singleValue: () => styles.singleValue,
+            multiValue: () => styles.multiValue,
+            multiValueLabel: () => styles.multiValueLabel,
+            multiValueRemove: () => styles.multiValueRemove,
+          }
+        : undefined,
       ...reactSelectOptions,
     } as SelectProps
 
