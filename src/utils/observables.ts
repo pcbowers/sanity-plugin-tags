@@ -191,7 +191,7 @@ export const getTagsFromReference = ({
 
 interface GetTagsFromRelatedInput {
   client: SanityClient
-  documentId: string
+  documentType: string
   field: string
   isMulti: boolean
   customLabel?: string
@@ -201,7 +201,7 @@ interface GetTagsFromRelatedInput {
 /**
  * Observes changes to related objects and returns refined tags
  * @param client A Sanity client
- * @param document a string that matches the current document type
+ * @param documentType a string that matches the current document type
  * @param field a string that matches the name of the field to pull from
  * @param isMulti whether or not the related field is an array or an object
  * @param customLabel a string with a custom label key to be swapped on the tag(s)
@@ -210,7 +210,7 @@ interface GetTagsFromRelatedInput {
  */
 export const getTagsFromRelated = ({
   client,
-  documentId,
+  documentType,
   field,
   isMulti,
   customLabel = 'label',
@@ -218,7 +218,7 @@ export const getTagsFromRelated = ({
 }: GetTagsFromRelatedInput): Observable<Tag[]> => {
   const query = `
   *[
-    _id == $documentId &&
+    _type == $documentType &&
     defined(@[$field]) &&
     defined(@[$field][]) == $isMulti &&
     (
@@ -231,7 +231,7 @@ export const getTagsFromRelated = ({
   `
 
   const params = {
-    documentId,
+    documentType,
     field,
     isMulti,
     customLabel: customLabel.split('.')[0],
