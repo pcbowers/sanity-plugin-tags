@@ -1,72 +1,87 @@
 {
   "name": "sanity-plugin-tags",
-  "version": "1.5.0",
-  "description": "A multi-tag input for sanity studio",
-  "main": "lib/index.js",
-  "source": "dist/*.js",
-  "scripts": {
-    "build": "vite build && babel lib --copy-files --out-dir lib",
-    "watch": "vite build --watch",
-    "lint": "eslint .",
-    "prepublishOnly": "npm run lint && npm run build"
-  },
-  "files": [
-    "/lib",
-    "/src",
-    "package.json",
-    "README.md",
-    "LICENSE",
-    "sanity.json"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/pcbowers/sanity-plugin-tags.git"
-  },
+  "version": "2.0.0",
+  "description": "A multi-tag input for Sanity Studio",
   "keywords": [
     "sanity",
-    "sanity-plugin",
-    "react"
+    "sanity-plugin"
   ],
-  "author": "P Christopher Bowers <pcbowers@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "react-select": "^5.2.2"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.9",
-    "@babel/plugin-proposal-class-properties": "^7.16.7",
-    "@babel/plugin-transform-arrow-functions": "^7.16.7",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
-    "@typescript-eslint/eslint-plugin": "^5.18.0",
-    "@typescript-eslint/parser": "^5.18.0",
-    "babel-preset-minify": "^0.5.1",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-config-sanity": "^5.1.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.29.4",
-    "prettier": "^2.6.2",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "typescript": "^4.6.3",
-    "vite": "^2.9.1"
-  },
-  "peerDependencies": {
-    "@reach/auto-id": "^0.16.0",
-    "@sanity/base": "^2.0.9 || ^3",
-    "@sanity/client": "^2.0.99 || ^3",
-    "@sanity/components": "^2.0.99 || ^3",
-    "@sanity/core": "^2.0.99 || ^3",
-    "@sanity/form-builder": "^2.0.99 || ^3",
-    "@sanity/ui": "^0.37.5",
-    "react": "^16 || ^17",
-    "react-dom": "^16 || ^17",
-    "rxjs": "^6.5.2",
-    "styled-components": "^5.2.0"
-  },
+  "homepage": "https://github.com/pcbowers/sanity-plugin-tags#readme",
   "bugs": {
     "url": "https://github.com/pcbowers/sanity-plugin-tags/issues"
   },
-  "homepage": "https://github.com/pcbowers/sanity-plugin-tags#readme"
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/pcbowers/sanity-plugin-tags.git"
+  },
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.esm.js",
+      "default": "./dist/index.esm.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.esm.js",
+  "source": "./src/index.ts",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "sanity.json",
+    "src",
+    "v2-incompatible.js"
+  ],
+  "scripts": {
+    "build": "run-s clean && plugin-kit verify-package --silent && pkg-utils build --strict && pkg-utils --strict",
+    "clean": "rimraf dist",
+    "format": "prettier --write --cache --ignore-unknown .",
+    "link-watch": "plugin-kit link-watch",
+    "lint": "eslint .",
+    "prepublishOnly": "run-s build",
+    "watch": "pkg-utils watch --strict"
+  },
+  "dependencies": {
+    "@sanity/incompatible-plugin": "^1.0.4",
+    "react-select": "^5.7.0"
+  },
+  "devDependencies": {
+    "@sanity/pkg-utils": "^2.2.5",
+    "@sanity/plugin-kit": "^3.1.6",
+    "@types/react": "^18.0.28",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-sanity": "^6.0.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.8.4",
+    "prettier-plugin-packagejson": "^2.4.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^18.2.0",
+    "rimraf": "^4.1.2",
+    "rollup-plugin-postcss": "^4.0.2",
+    "typescript": "^4.9.5"
+  },
+  "peerDependencies": {
+    "react": "^18",
+    "rxjs": "^7.8.0",
+    "sanity": "^3",
+    "styled-components": "^5.3.6"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "authors": [
+    "P Christopher Bowers <pcbowers@gmail.com>",
+    "Leo Baker-Hytch <l.bakerhytch@gmail.com>"
+  ],
+  "sanityExchangeUrl": "https://www.sanity.io/plugins/tags"
 }

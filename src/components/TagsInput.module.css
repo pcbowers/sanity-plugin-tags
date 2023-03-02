@@ -1,0 +1,47 @@
+.control {
+  background-color: var(--card-bg-color) !important;
+  border-color: var(--card-border-color) !important;
+  transition: none !important;
+}
+
+.control:hover {
+  border-color: var(--card-border-color) !important;
+}
+
+.menu {
+  background-color: var(--card-bg-color) !important;
+  border: 1px solid var(--card-border-color) !important;
+}
+
+.option {
+  background-color: var(--card-bg-color) !important;
+}
+
+.option:hover {
+  background-color: var(--card-border-color) !important;
+}
+
+.indicatorSeparator {
+  background-color: var(--card-border-color) !important;
+}
+
+.placeholder,
+.singleValue {
+  color: var(--card-fg-color) !important;
+}
+
+.multiValue {
+  background-color: var(--card-border-color) !important;
+}
+
+.multiValueLabel {
+  color: var(--card-fg-color) !important;
+}
+
+.multiValueRemove {
+  color: var(--card-fg-color) !important;
+}
+
+.multiValueRemove:hover {
+  color: #de350b !important;
+}

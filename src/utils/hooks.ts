@@ -1,5 +1,6 @@
 import React from 'react'
-import {filterUniqueTags} from '../utils'
+import {Tag} from '../types'
+import {filterUniqueTags} from './helpers'
 
 type LoadingOptions = {[key: string]: boolean}
 interface UseLoadingInput {

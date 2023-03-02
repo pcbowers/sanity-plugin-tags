@@ -1,5 +1,12 @@
-import tags from './schemas/tags'
-export {default as Input} from './components/Input'
-export {default as tag} from './schemas/tag'
+import {definePlugin} from 'sanity'
+import {tagSchema} from './schemas/tag'
+import {tagsSchema} from './schemas/tags'
 
-export default tags
+interface TagsPluginConfig {}
+
+export const tags = definePlugin<TagsPluginConfig | void>((config = {}) => ({
+  name: 'sanity-plugin-tags',
+  schema: {
+    types: [tagSchema, tagsSchema],
+  },
+}))

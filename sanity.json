@@ -1,34 +1,8 @@
 {
-  "paths": {
-    "source": "./src",
-    "compiled": "./lib"
-  },
   "parts": [
     {
-      "name": "part:tags/components/input",
-      "description": "Input component for the tags plugin"
-    },
-    {
-      "name": "part:tags/components/select",
-      "description": "Provides a way to modify react-select's pluggable components for the tags plugin without modifying the rest of the provided input component"
-    },
-    {
-      "implements": "part:tags/components/select",
-      "path": "components/Select"
-    },
-    {
-      "implements": "part:tags/components/input",
-      "path": "components/Input"
-    },
-    {
-      "name": "part:tags/schemas/tags-default",
-      "implements": "part:@sanity/base/schema-type",
-      "path": "schemas/tags"
-    },
-    {
-      "name": "part:tags/schemas/tag-default",
-      "implements": "part:@sanity/base/schema-type",
-      "path": "schemas/tag"
+      "implements": "part:@sanity/base/sanity-root",
+      "path": "./v2-incompatible.js"
     }
   ]
 }
