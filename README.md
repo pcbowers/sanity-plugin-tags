@@ -8,7 +8,8 @@ A multi-tag input for sanity studio. Fully featured with autocomplete capabiliti
 
 ## Install
 
-`sanity install tags`
+Sanity v3: `npm install sanity-plugin-tags`  
+Sanity v2: `sanity install tags`
 
 ## Use
 
