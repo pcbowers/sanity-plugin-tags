@@ -229,7 +229,8 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
         }),
       },
       classNames: prefersDark
-        ? {
+        ? undefined
+        : {
             container: () => styles.container,
             control: () => styles.control,
             menu: () => styles.menu,
@@ -240,8 +241,7 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
             multiValue: () => styles.multiValue,
             multiValueLabel: () => styles.multiValueLabel,
             multiValueRemove: () => styles.multiValueRemove,
-          }
-        : undefined,
+          },
       ...reactSelectOptions,
     } as SelectProps
 
