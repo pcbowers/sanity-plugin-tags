@@ -225,13 +225,15 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
       styles: {
         menu: (base) => ({
           ...base,
-          zIndex: 11, // Adjusted dropdown menu z-index to prevent overlap with background items
+          zIndex: 15, // Adjusted dropdown menu z-index to prevent overlap with background items
         }),
       },
       classNames: prefersDark
-        ? {
+        ? undefined
+        : {
             container: () => styles.container,
             control: () => styles.control,
+            input: () => styles.input,
             menu: () => styles.menu,
             option: () => styles.option,
             indicatorSeparator: () => styles.indicatorSeparator,
@@ -240,8 +242,7 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
             multiValue: () => styles.multiValue,
             multiValueLabel: () => styles.multiValueLabel,
             multiValueRemove: () => styles.multiValueRemove,
-          }
-        : undefined,
+          },
       ...reactSelectOptions,
     } as SelectProps
 

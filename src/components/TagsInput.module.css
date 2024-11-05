@@ -4,6 +4,10 @@
   transition: none !important;
 }
 
+.input {
+  color: var(--input-fg-color) !important;
+}
+
 .control:hover {
   border-color: var(--card-border-color) !important;
 }
@@ -15,6 +19,7 @@
 
 .option {
   background-color: var(--card-bg-color) !important;
+  color: var(--input-fg-color) !important;
 }
 
 .option:hover {
@@ -27,7 +32,7 @@
 
 .placeholder,
 .singleValue {
-  color: var(--card-fg-color) !important;
+  color: var(--input-fg-color) !important;
 }
 
 .multiValue {
