@@ -222,6 +222,12 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
       onCreateOption: handleCreate,
       onChange: handleChange,
       isDisabled: readOnly || isLoading,
+      styles: {
+        menu: (base) => ({
+          ...base,
+          zIndex: 5, // Adjusted dropdown menu z-index to prevent overlap with background items
+        }),
+      },
       classNames: prefersDark
         ? {
             container: () => styles.container,
