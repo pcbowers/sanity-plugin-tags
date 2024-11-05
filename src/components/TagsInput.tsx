@@ -225,7 +225,7 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
       styles: {
         menu: (base) => ({
           ...base,
-          zIndex: 11, // Adjusted dropdown menu z-index to prevent overlap with background items
+          zIndex: 15, // Adjusted dropdown menu z-index to prevent overlap with background items
         }),
       },
       classNames: prefersDark
