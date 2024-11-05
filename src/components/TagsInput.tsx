@@ -233,6 +233,7 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
         : {
             container: () => styles.container,
             control: () => styles.control,
+            input: () => styles.input,
             menu: () => styles.menu,
             option: () => styles.option,
             indicatorSeparator: () => styles.indicatorSeparator,
