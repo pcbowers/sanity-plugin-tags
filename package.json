@@ -49,7 +49,7 @@
     "react-select": "^5.7.0"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^2.2.5",
+    "@sanity/pkg-utils": "^2.2.13",
     "@sanity/plugin-kit": "^3.1.6",
     "@types/react": "^18.0.28",
     "@typescript-eslint/eslint-plugin": "^5.52.0",
