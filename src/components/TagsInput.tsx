@@ -224,7 +224,7 @@ export const TagsInput = forwardRef<StateManagedSelect, TagsInputProps>(
       isDisabled: readOnly || isLoading,
       classNames: prefersDark
         ? {
-            cantainer: () => styles.container,
+            container: () => styles.container,
             control: () => styles.control,
             menu: () => styles.menu,
             option: () => styles.option,
